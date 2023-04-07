@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-  "sort"
+	"sort"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
@@ -26,8 +26,8 @@ func (l *InitiativeLine) ModifyHP(delta int) {
 }
 
 func (l InitiativeLine) ToString() string {
-  hpstr := fmt.Sprintf("%d/%d", l.hp, l.maxhp)
-  initstr := fmt.Sprintf("%d", l.initiative)
+	hpstr := fmt.Sprintf("%d/%d", l.hp, l.maxhp)
+	initstr := fmt.Sprintf("%d", l.initiative)
 
 	return fmt.Sprintf("%-*.*s%-*.*s%-*.*s", 10, 10, l.name, 8, 8, hpstr, 4, 4, initstr)
 }
@@ -73,13 +73,13 @@ func (l *InitiativeList) MoveUp() {
 }
 
 func (l *InitiativeList) Sort() {
-  sort.SliceStable(l.initlist, func(i, j int) bool {
-    return l.initlist[i].initiative < l.initlist[j].initiative
-  })
+	sort.SliceStable(l.initlist, func(i, j int) bool {
+		return l.initlist[i].initiative < l.initlist[j].initiative
+	})
 }
 
 func (l *InitiativeList) Draw(s tcell.Screen, startx int, starty int) {
-  l.Sort()
+	l.Sort()
 	currenty := starty
 
 	for i, row := range l.initlist {
@@ -92,6 +92,21 @@ func (l *InitiativeList) Draw(s tcell.Screen, startx int, starty int) {
 
 		emitStr(s, startx, currenty, style, row.ToString())
 		currenty += 1
+	}
+}
+
+func (l *InitiativeList) HandleEvent(ev *tcell.EventKey) {
+	// Process event
+	if ev.Key() == tcell.KeyUp {
+		l.MoveUp()
+	} else if ev.Key() == tcell.KeyDown {
+		l.MoveDown()
+	} else if ev.Rune() == '-' {
+		l.GetSelected().ModifyHP(-1)
+	} else if ev.Rune() == '+' {
+		l.GetSelected().ModifyHP(+1)
+	} else if ev.Rune() == 'd' {
+		l.DeleteSelected()
 	}
 }
 
@@ -169,19 +184,11 @@ func main() {
 				s.Sync()
 			} else if ev.Rune() == 'q' {
 				return
-			} else if ev.Key() == tcell.KeyUp {
-				initList.MoveUp()
-			} else if ev.Key() == tcell.KeyDown {
-				initList.MoveDown()
-			} else if ev.Rune() == '-' {
-        initList.GetSelected().ModifyHP(-1)
-			} else if ev.Rune() == '+' {
-        initList.GetSelected().ModifyHP(+1)
-			} else if ev.Rune() == 'd' {
-        initList.DeleteSelected()
+      } else {
+        initList.HandleEvent(ev)
       }
 		}
-    s.Clear()
+		s.Clear()
 		initList.Draw(s, 1, 1)
 	}
 }
