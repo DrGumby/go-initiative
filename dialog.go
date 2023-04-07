@@ -52,6 +52,17 @@ func (d *Dialog) HandleEvent(ev *tcell.EventKey) {
 				d.initiativeStr = d.initiativeStr[:len(d.initiativeStr)-1]
 			}
 		}
+	} else if ev.Key() == tcell.KeyEnter {
+		if d.selected == CONFIRMLINE {
+			init, err := d.ToInitiativeLine()
+			if err != nil {
+				return
+			}
+			d.initlist.Append(*init)
+			d.name = ""
+			d.initiativeStr = ""
+			d.hpStr = ""
+		}
 	}
 }
 
