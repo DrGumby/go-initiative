@@ -47,7 +47,7 @@ func main() {
 	}
 	defer quit()
 
-	initList := InitiativeList{
+	initList := &InitiativeList{
 		[]InitiativeLine{
 			{
 				"Hello", 20, 3, 40,
@@ -60,6 +60,11 @@ func main() {
 			},
 		},
 		0,
+	}
+
+	currentContextIdx := 0
+	contexts := []HandleInputContext{
+		initList,
 	}
 
 	// Event loop
@@ -79,10 +84,10 @@ func main() {
 				return
 			} else if ev.Key() == tcell.KeyCtrlL {
 				s.Sync()
-			} else if ev.Rune() == 'q' {
-				return
+			} else if ev.Key() == tcell.KeyTAB {
+				currentContextIdx = (currentContextIdx + 1) % len(contexts)
 			} else {
-				initList.HandleEvent(ev)
+				contexts[currentContextIdx].HandleEvent(ev)
 			}
 		}
 		s.Clear()
