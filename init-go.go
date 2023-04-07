@@ -184,9 +184,9 @@ func main() {
 				s.Sync()
 			} else if ev.Rune() == 'q' {
 				return
-      } else {
-        initList.HandleEvent(ev)
-      }
+			} else {
+				initList.HandleEvent(ev)
+			}
 		}
 		s.Clear()
 		initList.Draw(s, 1, 1)
