@@ -20,6 +20,7 @@ type Dialog struct {
 	hpStr         string
 	initiativeStr string
 	selected      int
+	initlist      *InitiativeList
 }
 
 func (d *Dialog) HandleEvent(ev *tcell.EventKey) {
