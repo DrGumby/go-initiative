@@ -62,9 +62,14 @@ func main() {
 		0,
 	}
 
+	dialog := &Dialog{
+		"", "", "", 0,
+	}
+
 	currentContextIdx := 0
 	contexts := []HandleInputContext{
 		initList,
+		dialog,
 	}
 
 	// Event loop
@@ -92,5 +97,6 @@ func main() {
 		}
 		s.Clear()
 		initList.Draw(s, 1, 1)
+		dialog.Draw(s, 1, 20)
 	}
 }
