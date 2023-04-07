@@ -26,7 +26,7 @@ func (l *InitiativeList) DeleteSelected() {
 
 func (l *InitiativeList) correctSelected() {
 	if l.selected >= len(l.initlist) {
-		l.selected = len(l.initlist)
+		l.selected = len(l.initlist) - 1
 	}
 
 	if l.selected < 0 {
