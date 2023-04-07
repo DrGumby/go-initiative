@@ -78,7 +78,7 @@ func (l *InitiativeList) Sort() {
   })
 }
 
-func (l InitiativeList) Draw(s tcell.Screen, startx int, starty int) {
+func (l *InitiativeList) Draw(s tcell.Screen, startx int, starty int) {
   l.Sort()
 	currenty := starty
 
