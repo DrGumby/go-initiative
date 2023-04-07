@@ -177,8 +177,11 @@ func main() {
         initList.GetSelected().ModifyHP(-1)
 			} else if ev.Rune() == '+' {
         initList.GetSelected().ModifyHP(+1)
+			} else if ev.Rune() == 'd' {
+        initList.DeleteSelected()
       }
 		}
+    s.Clear()
 		initList.Draw(s, 1, 1)
 	}
 }
