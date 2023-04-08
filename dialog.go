@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -16,9 +17,9 @@ const (
 )
 
 type Dialog struct {
-	name          string
-	hpStr         string
-	initiativeStr string
+	name          TextInput
+	hpStr         TextInput
+	initiativeStr TextInput
 	selected      int
 	initlist      *InitiativeList
 }
@@ -28,30 +29,6 @@ func (d *Dialog) HandleEvent(ev *tcell.EventKey) {
 		d.MoveUp()
 	} else if ev.Key() == tcell.KeyDown {
 		d.MoveDown()
-	} else if c := ev.Rune(); strconv.IsPrint(c) {
-		switch d.selected {
-		case NAMELINE:
-			d.name += string(c)
-		case HPLINE:
-			d.hpStr += string(c)
-		case INITLINE:
-			d.initiativeStr += string(c)
-		}
-	} else if ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
-		switch d.selected {
-		case NAMELINE:
-			if len(d.name) > 0 {
-				d.name = d.name[:len(d.name)-1]
-			}
-		case HPLINE:
-			if len(d.hpStr) > 0 {
-				d.hpStr = d.hpStr[:len(d.hpStr)-1]
-			}
-		case INITLINE:
-			if len(d.initiativeStr) > 0 {
-				d.initiativeStr = d.initiativeStr[:len(d.initiativeStr)-1]
-			}
-		}
 	} else if ev.Key() == tcell.KeyEnter {
 		if d.selected == CONFIRMLINE {
 			init, err := d.ToInitiativeLine()
@@ -59,26 +36,35 @@ func (d *Dialog) HandleEvent(ev *tcell.EventKey) {
 				return
 			}
 			d.initlist.Append(*init)
-			d.name = ""
-			d.initiativeStr = ""
-			d.hpStr = ""
+			d.name = TextInput{" ", 0}
+			d.initiativeStr = TextInput{" ", 0}
+			d.hpStr = TextInput{" ", 0}
+		}
+	} else {
+		switch d.selected {
+		case NAMELINE:
+			d.name.HandleEvent(ev)
+		case HPLINE:
+			d.hpStr.HandleEvent(ev)
+		case INITLINE:
+			d.initiativeStr.HandleEvent(ev)
 		}
 	}
 }
 
 func (d Dialog) ToInitiativeLine() (*InitiativeLine, error) {
-	hp, err := strconv.Atoi(d.hpStr)
+	hp, err := strconv.Atoi(strings.TrimSpace(d.hpStr.GetValue()))
 	if err != nil {
 		return nil, err
 	}
 
-	initiative, err := strconv.Atoi(d.initiativeStr)
+	initiative, err := strconv.Atoi(strings.TrimSpace(d.initiativeStr.GetValue()))
 	if err != nil {
 		return nil, err
 	}
 
 	return &InitiativeLine{
-		name:       d.name,
+		name:       strings.TrimSpace(d.name.GetValue()),
 		hp:         hp,
 		maxhp:      hp,
 		initiative: initiative,
@@ -87,11 +73,14 @@ func (d Dialog) ToInitiativeLine() (*InitiativeLine, error) {
 
 func (d *Dialog) Draw(s tcell.Screen, startx int, starty int) {
 	currenty := starty
-	lines := []string{
-		NAMELINE:    fmt.Sprintf("Name:       %s", d.name),
-		HPLINE:      fmt.Sprintf("Max HP:     %s", d.hpStr),
-		INITLINE:    fmt.Sprintf("Initiative: %s", d.initiativeStr),
-		CONFIRMLINE: "Create new  ",
+	lines := []struct {
+		s string
+		t *TextInput
+	}{
+		NAMELINE:    {fmt.Sprintf("Name:       "), &d.name},
+		HPLINE:      {fmt.Sprintf("Max HP:     "), &d.hpStr},
+		INITLINE:    {fmt.Sprintf("Initiative: "), &d.initiativeStr},
+		CONFIRMLINE: {"Create new  ", nil},
 	}
 
 	for i, row := range lines {
@@ -102,7 +91,10 @@ func (d *Dialog) Draw(s tcell.Screen, startx int, starty int) {
 			style = defStyle
 		}
 
-		emitStr(s, startx, currenty, style, row)
+		emitStr(s, startx, currenty, style, row.s)
+		if row.t != nil {
+			row.t.Draw(s, startx+len(row.s), currenty)
+		}
 		currenty += 1
 	}
 }

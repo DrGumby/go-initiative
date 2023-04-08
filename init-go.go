@@ -63,7 +63,11 @@ func main() {
 	}
 
 	dialog := &Dialog{
-		"", "", "", 0, initList,
+		TextInput{" ", 0},
+		TextInput{" ", 0},
+		TextInput{" ", 0},
+		0,
+		initList,
 	}
 
 	currentContextIdx := 0

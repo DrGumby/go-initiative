@@ -28,7 +28,7 @@ func (t *TextInput) MoveLeft() {
 }
 
 func (t *TextInput) MoveRight() {
-	if t.cursor < len(t.value) {
+	if t.cursor < len(t.value)-1 {
 		t.cursor += 1
 	}
 }
@@ -44,6 +44,10 @@ func (t *TextInput) MoveEnd() {
 func (t *TextInput) DeleteBeforeCursor() {
 	if t.cursor > 0 {
 		t.value = t.value[:t.cursor-1] + t.value[t.cursor:]
+		t.MoveLeft()
+	}
+	if t.cursor >= len(t.value) {
+		t.cursor = len(t.value) - 1
 	}
 }
 
